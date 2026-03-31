@@ -16,7 +16,7 @@ vue-sliding-puzzle 是一个基于 Vue 3 开发的滑动拼图验证码组件，
 
 **DEMO**: https://dev-cyclops.tjingcai.com/admin/
 
-![img](demo.gif)
+![img](public/demo.gif)
 
 ### 安装
 ```node
