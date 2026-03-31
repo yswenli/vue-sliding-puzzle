@@ -3,11 +3,11 @@ import {resolve} from 'path'
 import { defineConfig } from 'vite'
 
 import vue from '@vitejs/plugin-vue';
-import dts from 'vite-plugin-dts';
-import libCss from 'vite-plugin-libcss';
 
 module.exports = defineConfig({
-  plugins: [vue(), dts({insertTypesEntry: true, copyDtsFiles: false}), libCss()],
+  plugins: [
+    vue()
+    ],
   resolve: { dedupe: ['vue'] },
   build: {
     lib: {
