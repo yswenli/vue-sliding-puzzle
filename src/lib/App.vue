@@ -144,6 +144,8 @@ interface State {
   isSuccess: boolean; // 验证成功
   imgIndex: number; // 用于自定义图片时不会随机到重复的图片
   isSubmting: boolean; // 是否正在判定，主要用于判定中不能点击重置按钮
+  startTime: number; // 开始滑动的时间
+  endTime: number; // 结束滑动的时间
 }
 
 const emit = defineEmits(["success", "fail", "close", "reset"]);
@@ -176,6 +178,7 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  interferenceDiagramCount: { type: Number, default: 0 }, // 干扰图数量
 });
 
 const state = reactive<State>({
@@ -197,6 +200,8 @@ const state = reactive<State>({
   isSuccess: false,
   imgIndex: -1,
   isSubmting: false,
+  startTime: 0,
+  endTime: 0,
 });
 
 // 每次出现都应该重新初始化
@@ -283,6 +288,8 @@ const onRangeMouseDown = (e: Event) => {
     state.startWidth = rangeSlider.value?.clientWidth || 0;
     state.newX =(e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
     state.startX = (e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
+    // 记录开始时间
+    state.startTime = Date.now();
   }
 };
 
@@ -466,6 +473,76 @@ const init = (withCanvas = false) => {
     ctx.globalCompositeOperation = "destination-over";
     ctx.drawImage(img, x, y, w, h);
     ctx.restore();
+    
+    // 生成干扰图
+    if (props.interferenceDiagramCount > 0) {
+      for (let i = 0; i < props.interferenceDiagramCount; i++) {
+        // 生成随机位置和大小的干扰图
+        const interferencePinX = getRandom(
+          puzzleBaseSize.value + 20,
+          props.canvasWidth - puzzleBaseSize.value - 10
+        );
+        const interferencePinY = getRandom(
+          20,
+          props.canvasHeight - puzzleBaseSize.value - 10
+        );
+        
+        // 生成随机的tag值
+        const r1 = Math.random();
+        const r2 = Math.random();
+        const r3 = Math.random();
+        const r4 = Math.random();
+        const interferenceTag1 = r1 < 0.33 ? -1 : r1 < 0.66 ? 0 : 1;
+        const interferenceTag2 = r2 < 0.33 ? -1 : r2 < 0.66 ? 0 : 1;
+        const interferenceTag3 = r3 < 0.33 ? -1 : r3 < 0.66 ? 0 : 1;
+        let interferenceTag4 = r4 < 0.6 ? 1 : 0;
+        if(interferenceTag1 === interferenceTag2 && interferenceTag2 === interferenceTag3 && interferenceTag3 === interferenceTag4 && interferenceTag4 === 0){
+          interferenceTag4 = 1;
+        }
+        
+        // 保存当前状态
+        ctx.save();
+        
+        // 临时保存原始的pinX和pinY
+        const originalPinX = state.pinX;
+        const originalPinY = state.pinY;
+        
+        // 设置干扰图的位置
+        state.pinX = interferencePinX;
+        state.pinY = interferencePinY;
+        
+        // 绘制干扰图的缺口
+        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        ctx.restore();
+        
+        // 绘制干扰图的内阴影
+        ctx.save();
+        ctx.globalCompositeOperation = "source-atop";
+        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
+        ctx.arc(
+          interferencePinX + Math.ceil(puzzleBaseSize.value / 2),
+          interferencePinY + Math.ceil(puzzleBaseSize.value / 2),
+          puzzleBaseSize.value * 1.2,
+          0,
+          Math.PI * 2,
+          true
+        );
+        ctx.shadowColor = "#000";
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 16;
+        ctx.fill();
+        ctx.restore();
+        
+        // 恢复原始的pinX和pinY
+        state.pinX = originalPinX;
+        state.pinY = originalPinY;
+      }
+    }
+    
     state.loading = false;
     state.isCanSlide = true;
   };
@@ -652,6 +729,11 @@ const makeImgWithCanvas = () => {
 // 私有-开始判定
 const submit = () => {
   state.isSubmting = true;
+  // 记录结束时间
+  state.endTime = Date.now();
+  // 计算用时
+  const duration = state.endTime - state.startTime;
+  
   // 偏差 x = puzzle的起始X - ((用户真滑动的距离) - (puzzle的宽度 - 滑块的宽度) * （用户真滑动的距离/canvas总宽度）+ 3);
   // 最后+ 的是补上slider和滑块宽度不一致造成的缝隙
   // ((用户真滑动的距离) - (puzzle的宽度 - 滑块的宽度) * （用户真滑动的距离/canvas总宽度))
@@ -660,7 +742,7 @@ const submit = () => {
   const x = state.pinX - 3 - u;
   // console.log('x', state.pinX, (styleWidth.value - sliderBaseSize.value), (puzzleBaseSize.value - sliderBaseSize.value), ((styleWidth.value - sliderBaseSize.value) / (props.canvasWidth - sliderBaseSize.value)));
 
-  if (Math.abs(x) < props.range) {
+  if (Math.abs(x) < props.range && duration >= 1000) {
     // 成功
     state.infoText = props.successText;
     state.infoBoxFail = false;
@@ -673,7 +755,7 @@ const submit = () => {
     state.timer1 = setTimeout(() => {
       // 成功的回调
       state.isSubmting = false;
-      emit("success", x, {deviation: x, offsetX: u, pinX: state.pinX - 3});
+      emit("success", x, {deviation: x, offsetX: u, pinX: state.pinX - 3, duration});
     }, 800);
   } else {
     // 失败
@@ -681,7 +763,7 @@ const submit = () => {
     state.infoBoxFail = true;
     state.infoBoxShow = true;
     state.isCanSlide = false;
-    emit("fail", x, {deviation: x, offsetX: u, pinX: state.pinX - 3});
+    emit("fail", x, {deviation: x, offsetX: u, pinX: state.pinX - 3, duration});
     // 800ms后重置
     state.timer1 && clearTimeout(state.timer1);
     state.timer1 = setTimeout(() => {
@@ -699,6 +781,9 @@ const resetState = () => {
   state.startWidth = sliderBaseSize.value; // 鼠标点下去时父级的width
   state.startX = 0; // 鼠标按下时的X
   state.newX = 0; // 鼠标当前的偏移X
+  // 重置时间
+  state.startTime = 0;
+  state.endTime = 0;
 };
 
 // 重置 - 重新加载

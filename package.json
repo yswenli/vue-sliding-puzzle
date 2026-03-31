@@ -1,16 +1,16 @@
 {
-  "name": "vue3-puzzle-vcode",
-  "version": "1.1.7-next",
+  "name": "vue-sliding-puzzle",
+  "version": "3.263.311",
   "files": [
     "dist"
   ],
-  "module": "./dist/vue3-puzzle-vcode.es.js",
-  "main": "./dist/vue3-puzzle-vcode.umd.js",
+  "module": "./dist/vue-sliding-puzzle.es.js",
+  "main": "./dist/vue-sliding-puzzle.umd.js",
   "typings": "./dist/main.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/vue3-puzzle-vcode.es.js",
-      "require": "./dist/vue3-puzzle-vcode.umd.js"
+      "import": "./dist/vue-sliding-puzzle.es.js",
+      "require": "./dist/vue-sliding-puzzle.umd.js"
     },
     "./css": {
       "import": "./dist/main.css",

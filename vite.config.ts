@@ -13,7 +13,7 @@ module.exports = defineConfig({
     lib: {
       name: 'vue3PuzzleVcode',
       entry: resolve(__dirname, 'src/lib/main.ts'),
-      fileName: (format) => `vue3-puzzle-vcode.${format}.js`
+      fileName: (format) => `vue-sliding-puzzle.${format}.js`
     },
     cssCodeSplit: true,
     

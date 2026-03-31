@@ -1,4 +1,4 @@
-# vue3-puzzle-vcode [![npm](https://img.shields.io/npm/v/vue3-puzzle-vcode.svg)](https://www.npmjs.com/package/vue3-puzzle-vcode) [![npm downloads](https://img.shields.io/npm/dt/vue3-puzzle-vcode.svg)](https://www.npmjs.com/package/vue3-puzzle-vcode)
+# vue-sliding-puzzle [![npm](https://img.shields.io/npm/v/vue-sliding-puzzle.svg)](https://www.npmjs.com/package/vue-sliding-puzzle) [![npm downloads](https://img.shields.io/npm/dt/vue-sliding-puzzle.svg)](https://www.npmjs.com/package/vue-sliding-puzzle)
 
 **DEMO**: https://isluo.com/work/vue-puzzle-vcode/
 
@@ -6,7 +6,7 @@
 
 ### 安装
 ```node
-  npm install vue3-puzzle-vcode --save
+  npm install vue-sliding-puzzle --save
 ```
 
 ### 最简单例子
@@ -18,7 +18,7 @@
 
 <script setup>
   import { ref } from "vue";
-  import Vcode from "vue3-puzzle-vcode";
+  import Vcode from "vue-sliding-puzzle";
 
   const isShow = ref(false);
 
@@ -95,5 +95,5 @@ success / fail 的返回值：
 
 ### Nuxt.js注意
 
-Nuxt.js中如果发现样式有问题，请使用`npm install vue3-puzzle-vcode@1.1.2-nuxt`这个版本试试。
+Nuxt.js中如果发现样式有问题，请使用`npm install vue-sliding-puzzle@1.1.2-nuxt`这个版本试试。
 

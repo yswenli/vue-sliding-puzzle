@@ -22,14 +22,14 @@
 <script setup lang="ts">
 // 关于打包
 // 普通包，build后正常发
-// nuxt包，build后把vue3-puzzle.vocde.es.js第一行改为 import "vue3-puzzle-vcode/css";
+// nuxt包，build后把vue3-puzzle.vocde.es.js第一行改为 import "vue-sliding-puzzle/css";
 // package.json里已经配置了./css， 就是为nuxt设置的
 // 发布时需要把这里的Vcode注释掉
 
 // import { defineProps, defineEmits } from "vue";
 import { ref } from "vue";
 // import Vcode from "./lib/main";
-// import Vcode from "../dist/vue3-puzzle-vcode.es";
+// import Vcode from "../dist/vue-sliding-puzzle.es";
 
 const $emit = defineEmits(["updata"]);
 
