@@ -93,7 +93,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, computed, watch } from "vue";
-import { defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits, defineOptions } from "vue";
+
+// 禁止自动继承属性，因为组件使用了 teleport 作为根元素
+defineOptions({
+  inheritAttrs: false
+});
 
 onMounted(() => {
   document.addEventListener("mousemove", onRangeMouseMove, false);
@@ -477,15 +482,47 @@ const init = (withCanvas = false) => {
     // 生成干扰图
     if (props.interferenceDiagramCount > 0) {
       for (let i = 0; i < props.interferenceDiagramCount; i++) {
-        // 生成随机位置和大小的干扰图
-        const interferencePinX = getRandom(
-          puzzleBaseSize.value + 20,
-          props.canvasWidth - puzzleBaseSize.value - 10
-        );
-        const interferencePinY = getRandom(
-          20,
-          props.canvasHeight - puzzleBaseSize.value - 10
-        );
+        // 生成随机位置的干扰图，确保不与正常缺口重叠
+        let interferencePinX, interferencePinY;
+        let isOverlap = true;
+        
+        // 计算正常缺口的边界
+        const normalGapLeft = state.pinX;
+        const normalGapTop = state.pinY;
+        const normalGapRight = state.pinX + puzzleBaseSize.value;
+        const normalGapBottom = state.pinY + puzzleBaseSize.value;
+        
+        // 最多尝试10次，确保能找到不重叠的位置
+        let attempts = 0;
+        while (isOverlap && attempts < 10) {
+          interferencePinX = getRandom(
+            puzzleBaseSize.value + 20,
+            props.canvasWidth - puzzleBaseSize.value - 10
+          );
+          interferencePinY = getRandom(
+            20,
+            props.canvasHeight - puzzleBaseSize.value - 10
+          );
+          
+          // 计算干扰图的边界
+          const interferenceLeft = interferencePinX;
+          const interferenceTop = interferencePinY;
+          const interferenceRight = interferencePinX + puzzleBaseSize.value;
+          const interferenceBottom = interferencePinY + puzzleBaseSize.value;
+          
+          // 检查是否与正常缺口重叠
+          isOverlap = !(interferenceRight < normalGapLeft || 
+                      interferenceLeft > normalGapRight || 
+                      interferenceBottom < normalGapTop || 
+                      interferenceTop > normalGapBottom);
+          
+          attempts++;
+        }
+        
+        // 如果尝试了10次还是重叠，就跳过这个干扰图
+        if (isOverlap) {
+          continue;
+        }
         
         // 生成随机的tag值
         const r1 = Math.random();
@@ -513,7 +550,7 @@ const init = (withCanvas = false) => {
         
         // 绘制干扰图的缺口
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
-        ctx.globalAlpha = 0.8;
+        ctx.globalAlpha = 0.6; // 降低干扰图的透明度，使其不那么明显
         ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.restore();
@@ -522,14 +559,6 @@ const init = (withCanvas = false) => {
         ctx.save();
         ctx.globalCompositeOperation = "source-atop";
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
-        ctx.arc(
-          interferencePinX + Math.ceil(puzzleBaseSize.value / 2),
-          interferencePinY + Math.ceil(puzzleBaseSize.value / 2),
-          puzzleBaseSize.value * 1.2,
-          0,
-          Math.PI * 2,
-          true
-        );
         ctx.shadowColor = "#000";
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
