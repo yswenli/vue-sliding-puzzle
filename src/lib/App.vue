@@ -436,56 +436,41 @@ const init = (withCanvas = false) => {
     ctx.restore();
     ctx.clearRect(0, 0, props.canvasWidth, props.canvasHeight);
 
+    // 画整体背景图
+    ctx.save();
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+    
     // 画缺口
     ctx.save();
     paintBrick(ctx, tag1, tag2, tag3, tag4);
-    ctx.globalAlpha = 0.8;
-    ctx.fillStyle = "#ffffff";
+    ctx.globalCompositeOperation = "destination-out";
     ctx.fill();
     ctx.restore();
+    
     // 画缺口的内阴影
     ctx.save();
     ctx.globalCompositeOperation = "source-atop";
     paintBrick(ctx, tag1, tag2, tag3, tag4);
-    ctx.arc(
-      state.pinX + Math.ceil(puzzleBaseSize.value / 2),
-      state.pinY + Math.ceil(puzzleBaseSize.value / 2),
-      puzzleBaseSize.value * 1.2,
-      0,
-      Math.PI * 2,
-      true
-    );
     ctx.shadowColor = "#000";
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
     ctx.shadowBlur = 16;
     ctx.fill();
     ctx.restore();
-    // 画整体背景图
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(img, x, y, w, h);
-    ctx.restore();
     
     // 生成干扰图
     if (props.interferenceDiagramCount > 0) {
       for (let i = 0; i < props.interferenceDiagramCount; i++) {
-        // 生成随机位置的干扰图
+        // 生成随机位置，确保不超出画布边界
         const interferencePinX = getRandom(
-          puzzleBaseSize.value + 20,
+          10,
           props.canvasWidth - puzzleBaseSize.value - 10
         );
         const interferencePinY = getRandom(
-          20,
+          10,
           props.canvasHeight - puzzleBaseSize.value - 10
         );
-        
-        // 25%的概率随机调整大小
-        let interferenceScale = 1;
-        if (Math.random() < 0.25) {
-          // 随机大小范围：0.8 - 1.2
-          interferenceScale = 0.8 + Math.random() * 0.4;
-        }
         
         // 生成随机的tag值
         const r1 = Math.random();
@@ -502,35 +487,15 @@ const init = (withCanvas = false) => {
         
         // 绘制干扰图的缺口
         ctx.save();
+        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4, interferencePinX, interferencePinY);
         ctx.globalCompositeOperation = "destination-out";
-        
-        // 移动到干扰图位置并应用大小缩放
-        ctx.translate(interferencePinX, interferencePinY);
-        ctx.scale(interferenceScale, interferenceScale);
-        ctx.translate(-interferencePinX, -interferencePinY);
-        
-        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
         ctx.fill();
         ctx.restore();
         
         // 绘制干扰图的内阴影
         ctx.save();
-        
-        // 移动到干扰图位置并应用大小缩放
-        ctx.translate(interferencePinX, interferencePinY);
-        ctx.scale(interferenceScale, interferenceScale);
-        ctx.translate(-interferencePinX, -interferencePinY);
-        
         ctx.globalCompositeOperation = "source-atop";
-        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
-        ctx.arc(
-          interferencePinX + Math.ceil(puzzleBaseSize.value / 2),
-          interferencePinY + Math.ceil(puzzleBaseSize.value / 2),
-          puzzleBaseSize.value * 1.2,
-          0,
-          Math.PI * 2,
-          true
-        );
+        paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4, interferencePinX, interferencePinY);
         ctx.shadowColor = "#000";
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
@@ -591,80 +556,84 @@ const makeImgSize = (img: HTMLImageElement) => {
 };
 
 // 私有-绘制拼图块的路径
-const paintBrick = (ctx: CanvasRenderingContext2D, tag1: number, tag2: number, tag3: number, tag4: number) => {
+const paintBrick = (ctx: CanvasRenderingContext2D, tag1: number, tag2: number, tag3: number, tag4: number, pinX?: number, pinY?: number) => {
   const moveL = Math.ceil(15 * props.puzzleScale); // 直线移动的基础距离
+  // 使用传入的位置参数，如果没有则使用state中的位置
+  const x = pinX !== undefined ? pinX : state.pinX;
+  const y = pinY !== undefined ? pinY : state.pinY;
+  
   ctx.beginPath();
-  ctx.moveTo(state.pinX, state.pinY);
-  ctx.lineTo(state.pinX + moveL, state.pinY);
+  ctx.moveTo(x, y);
+  ctx.lineTo(x + moveL, y);
 
   ctx.arcTo(
-    state.pinX + moveL,
-    state.pinY + tag1 * moveL / 2,
-    state.pinX + moveL + moveL / 2,
-    state.pinY + tag1 * moveL / 2,
+    x + moveL,
+    y + tag1 * moveL / 2,
+    x + moveL + moveL / 2,
+    y + tag1 * moveL / 2,
     moveL / 2
   );
   ctx.arcTo(
-    state.pinX + moveL + moveL,
-    state.pinY + tag1 * moveL / 2,
-    state.pinX + moveL + moveL,
-    state.pinY,
-    moveL / 2
-  );
-
-  ctx.lineTo(state.pinX + moveL + moveL + moveL, state.pinY);
-  ctx.lineTo(state.pinX + moveL + moveL + moveL, state.pinY + moveL);
-
-  ctx.arcTo(
-    state.pinX + moveL + moveL + moveL + tag2 * moveL / 2,
-    state.pinY + moveL,
-    state.pinX + moveL + moveL + moveL + tag2 * moveL / 2,
-    state.pinY + moveL + moveL / 2,
-    moveL / 2
-  );
-  ctx.arcTo(
-    state.pinX + moveL + moveL + moveL + tag2 * moveL / 2,
-    state.pinY + moveL + moveL,
-    state.pinX + moveL + moveL + moveL,
-    state.pinY + moveL + moveL,
-    moveL / 2
-  );
-  ctx.lineTo( state.pinX + moveL + moveL + moveL, state.pinY + moveL + moveL + moveL); // 右下角
-  ctx.lineTo( state.pinX + moveL + moveL, state.pinY + moveL + moveL + moveL);
-
-  ctx.arcTo(
-    state.pinX + moveL + moveL,
-    state.pinY + moveL + moveL + moveL + tag3 * moveL / 2,
-    state.pinX + moveL + moveL / 2,
-    state.pinY + moveL + moveL + moveL + tag3 * moveL / 2,
-    moveL / 2
-  );
-  ctx.arcTo(
-    state.pinX + moveL,
-    state.pinY + moveL + moveL + moveL + tag3 * moveL / 2,
-    state.pinX + moveL,
-    state.pinY + moveL + moveL + moveL,
+    x + moveL + moveL,
+    y + tag1 * moveL / 2,
+    x + moveL + moveL,
+    y,
     moveL / 2
   );
 
-  ctx.lineTo(state.pinX, state.pinY + moveL + moveL + moveL); // 左下角
-  ctx.lineTo(state.pinX, state.pinY + moveL + moveL);
+  ctx.lineTo(x + moveL + moveL + moveL, y);
+  ctx.lineTo(x + moveL + moveL + moveL, y + moveL);
 
   ctx.arcTo(
-    state.pinX + tag4 * moveL / 2,
-    state.pinY + moveL + moveL,
-    state.pinX + tag4 * moveL / 2,
-    state.pinY + moveL + moveL / 2,
+    x + moveL + moveL + moveL + tag2 * moveL / 2,
+    y + moveL,
+    x + moveL + moveL + moveL + tag2 * moveL / 2,
+    y + moveL + moveL / 2,
     moveL / 2
   );
   ctx.arcTo(
-    state.pinX + tag4 * moveL / 2,
-    state.pinY + moveL,
-    state.pinX,
-    state.pinY + moveL,
+    x + moveL + moveL + moveL + tag2 * moveL / 2,
+    y + moveL + moveL,
+    x + moveL + moveL + moveL,
+    y + moveL + moveL,
     moveL / 2
   );
-  ctx.lineTo(state.pinX, state.pinY);
+  ctx.lineTo( x + moveL + moveL + moveL, y + moveL + moveL + moveL); // 右下角
+  ctx.lineTo( x + moveL + moveL, y + moveL + moveL + moveL);
+
+  ctx.arcTo(
+    x + moveL + moveL,
+    y + moveL + moveL + moveL + tag3 * moveL / 2,
+    x + moveL + moveL / 2,
+    y + moveL + moveL + moveL + tag3 * moveL / 2,
+    moveL / 2
+  );
+  ctx.arcTo(
+    x + moveL,
+    y + moveL + moveL + moveL + tag3 * moveL / 2,
+    x + moveL,
+    y + moveL + moveL + moveL,
+    moveL / 2
+  );
+
+  ctx.lineTo(x, y + moveL + moveL + moveL); // 左下角
+  ctx.lineTo(x, y + moveL + moveL);
+
+  ctx.arcTo(
+    x + tag4 * moveL / 2,
+    y + moveL + moveL,
+    x + tag4 * moveL / 2,
+    y + moveL + moveL / 2,
+    moveL / 2
+  );
+  ctx.arcTo(
+    x + tag4 * moveL / 2,
+    y + moveL,
+    x,
+    y + moveL,
+    moveL / 2
+  );
+  ctx.lineTo(x, y);
 };
 
 // 私有-用canvas随机生成图片

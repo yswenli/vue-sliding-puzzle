@@ -1,6 +1,6 @@
 {
   "name": "vue-sliding-puzzle",
-  "version": "3.263.318",
+  "version": "226.3.31-7",
   "description": "基于 Vue 3 的滑动拼图验证码组件，支持干扰图、时间判定等安全特性",
   "keywords": [
     "vue",

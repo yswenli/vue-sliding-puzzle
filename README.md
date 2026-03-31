@@ -16,7 +16,7 @@ vue-sliding-puzzle 是一个基于 Vue 3 开发的滑动拼图验证码组件，
 
 **DEMO**: https://dev-cyclops.tjingcai.com/admin/
 
-![img](public/demo.gif)
+![img](https://github.com/yswenli/vue-sliding-puzzle/blob/master/public/demo.gif)
 
 ### 安装
 ```node
@@ -59,7 +59,7 @@ vue-sliding-puzzle 是一个基于 Vue 3 开发的滑动拼图验证码组件，
       @close="onClose"
       :slider-text="'请拖动滑块完成验证'"
       :success-text="'验证通过'"
-      :interferenceDiagramCount="3"
+      :interference-diagram-count="3"
     />
     <button @click="onShow">开始验证</button>
 </template>
@@ -91,18 +91,18 @@ vue-sliding-puzzle 是一个基于 Vue 3 开发的滑动拼图验证码组件，
 | ------------ | ------- | ------------------ | ----------------------------------------------------------------------------- |
 | show         | Boolean | false              | 是否显示验证码弹框                                                            |
 | type         | String  | "modal"            | "modal"模态框形式 / "inside"内嵌形式                                          |
-| canvasWidth  | Number  | 310                | 主图区域的宽度，单位 px                                                       |
-| canvasHeight | Number  | 160                | 主图区域的高度，单位 px                                                       |
-| puzzleScale  | Number  | 1                  | 拼图块(小的拼图)的大小比例，0.2 ～ 2 ，数字越大，拼图越大                     |
-| sliderSize   | Number  | 50                 | 左下角用户拖动的那个滑块的尺寸，单位 px                                       |
+| canvas-width  | Number  | 310                | 主图区域的宽度，单位 px                                                       |
+| canvas-height | Number  | 160                | 主图区域的高度，单位 px                                                       |
+| puzzle-scale  | Number  | 1                  | 拼图块(小的拼图)的大小比例，0.2 ～ 2 ，数字越大，拼图越大                     |
+| slider-size   | Number  | 50                 | 左下角用户拖动的那个滑块的尺寸，单位 px                                       |
 | range        | Number  | 10                 | 判断成功的误差范围，单位 px, 滑动的距离和拼图缺口的距离小于等于此值时，会判定重合 |
 | imgs         | Array   | null               | 自定义图片，见下方例子                                                        |
-| successText  | String  | "验证通过！"       | 验证成功时的提示文字                                                          |
-| failText     | String  | "验证失败，请重试" | 验证失败时的提示文字                                                          |
-| sliderText   | String  | "拖动滑块完成拼图" | 下方滑动条里的文字                                                            |
-| className    | String  | ""               | 给根元素一个class类用于自定义样式                                              |
-| zIndex       | Number  | 999               | 设置根元素一个层级z-index                                              |
-| interferenceDiagramCount | Number | 0 | 干扰图数量，在现有背景图中生成指定数量的干扰图，位置和大小不同 |
+| success-text  | String  | "验证通过！"       | 验证成功时的提示文字                                                          |
+| fail-text     | String  | "验证失败，请重试" | 验证失败时的提示文字                                                          |
+| slider-text   | String  | "拖动滑块完成拼图" | 下方滑动条里的文字                                                            |
+| class-name    | String  | ""               | 给根元素一个class类用于自定义样式                                              |
+| z-index       | Number  | 999               | 设置根元素一个层级z-index                                              |
+| interference-diagram-count | Number | 0 | 干扰图数量，在现有背景图中生成指定数量的干扰图，位置和大小不同 |
 ### 事件
 
 | 事件名  | 返回值 | 说明                                                          |
