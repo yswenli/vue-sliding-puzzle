@@ -421,18 +421,7 @@ const init = (withCanvas = false) => {
     ctx.fillStyle = "#ffffaa";
     ctx.fill();
 
-    // 将小图赋值给ctx2
-    // ctx2.drawImage(
-    //   c,
-    //   state.pinX - 3,
-    //   state.pinY - 20,
-    //   state.pinX + puzzleBaseSize.value + 5,
-    //   state.pinY + puzzleBaseSize.value + 5,
-    //   0,
-    //   state.pinY - 20,
-    //   state.pinX + puzzleBaseSize.value + 5,
-    //   state.pinY + puzzleBaseSize.value + 5
-    // );
+
     // 之所以要用getImageData，是因为safari中可能有问题，drawImage是异步的
     const imgData = ctx.getImageData(
       state.pinX - 3, // 为了阴影 是从-3px开始截取，判定的时候要+3px
@@ -472,56 +461,24 @@ const init = (withCanvas = false) => {
     ctx.shadowBlur = 16;
     ctx.fill();
     ctx.restore();
-
-    // 画整体背景图
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(img, x, y, w, h);
-    ctx.restore();
-    
     // 生成干扰图
     if (props.interferenceDiagramCount > 0) {
       for (let i = 0; i < props.interferenceDiagramCount; i++) {
-        // 生成随机位置的干扰图，确保不与正常缺口重叠
-        let interferencePinX, interferencePinY;
-        let isOverlap = true;
+        // 生成随机位置的干扰图
+        const interferencePinX = getRandom(
+          puzzleBaseSize.value + 20,
+          props.canvasWidth - puzzleBaseSize.value - 10
+        );
+        const interferencePinY = getRandom(
+          20,
+          props.canvasHeight - puzzleBaseSize.value - 10
+        );
         
-        // 计算正常缺口的边界
-        const normalGapLeft = state.pinX;
-        const normalGapTop = state.pinY;
-        const normalGapRight = state.pinX + puzzleBaseSize.value;
-        const normalGapBottom = state.pinY + puzzleBaseSize.value;
-        
-        // 最多尝试10次，确保能找到不重叠的位置
-        let attempts = 0;
-        while (isOverlap && attempts < 10) {
-          interferencePinX = getRandom(
-            puzzleBaseSize.value + 20,
-            props.canvasWidth - puzzleBaseSize.value - 10
-          );
-          interferencePinY = getRandom(
-            20,
-            props.canvasHeight - puzzleBaseSize.value - 10
-          );
-          
-          // 计算干扰图的边界
-          const interferenceLeft = interferencePinX;
-          const interferenceTop = interferencePinY;
-          const interferenceRight = interferencePinX + puzzleBaseSize.value;
-          const interferenceBottom = interferencePinY + puzzleBaseSize.value;
-          
-          // 检查是否与正常缺口重叠
-          isOverlap = !(interferenceRight < normalGapLeft || 
-                      interferenceLeft > normalGapRight || 
-                      interferenceBottom < normalGapTop || 
-                      interferenceTop > normalGapBottom);
-          
-          attempts++;
-        }
-        
-        // 如果尝试了10次还是重叠，就跳过这个干扰图
-        if (isOverlap) {
-          continue;
+        // 25%的概率随机调整大小
+        let interferenceScale = 1;
+        if (Math.random() < 0.25) {
+          // 随机大小范围：0.8 - 1.2
+          interferenceScale = 0.8 + Math.random() * 0.4;
         }
         
         // 生成随机的tag值
@@ -537,40 +494,52 @@ const init = (withCanvas = false) => {
           interferenceTag4 = 1;
         }
         
-        // 保存当前状态
+        // 绘制干扰图的缺口
         ctx.save();
         
-        // 临时保存原始的pinX和pinY
-        const originalPinX = state.pinX;
-        const originalPinY = state.pinY;
+        // 移动到干扰图位置并应用大小缩放
+        ctx.translate(interferencePinX, interferencePinY);
+        ctx.scale(interferenceScale, interferenceScale);
+        ctx.translate(-interferencePinX, -interferencePinY);
         
-        // 设置干扰图的位置
-        state.pinX = interferencePinX;
-        state.pinY = interferencePinY;
-        
-        // 绘制干扰图的缺口
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
-        ctx.globalAlpha = 0.6; // 降低干扰图的透明度，使其不那么明显
+        ctx.globalAlpha = 0.6; // 调整干扰图的透明度为60%
         ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.restore();
         
         // 绘制干扰图的内阴影
         ctx.save();
+        
+        // 移动到干扰图位置并应用大小缩放
+        ctx.translate(interferencePinX, interferencePinY);
+        ctx.scale(interferenceScale, interferenceScale);
+        ctx.translate(-interferencePinX, -interferencePinY);
+        
         ctx.globalCompositeOperation = "source-atop";
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
+        ctx.arc(
+          interferencePinX + Math.ceil(puzzleBaseSize.value / 2),
+          interferencePinY + Math.ceil(puzzleBaseSize.value / 2),
+          puzzleBaseSize.value * 1.2,
+          0,
+          Math.PI * 2,
+          true
+        );
         ctx.shadowColor = "#000";
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
         ctx.shadowBlur = 16;
         ctx.fill();
         ctx.restore();
-        
-        // 恢复原始的pinX和pinY
-        state.pinX = originalPinX;
-        state.pinY = originalPinY;
       }
     }
+    
+    // 画整体背景图
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
     
     state.loading = false;
     state.isCanSlide = true;
