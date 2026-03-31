@@ -461,6 +461,12 @@ const init = (withCanvas = false) => {
     ctx.shadowBlur = 16;
     ctx.fill();
     ctx.restore();
+    // 画整体背景图
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
+    
     // 生成干扰图
     if (props.interferenceDiagramCount > 0) {
       for (let i = 0; i < props.interferenceDiagramCount; i++) {
@@ -496,6 +502,7 @@ const init = (withCanvas = false) => {
         
         // 绘制干扰图的缺口
         ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
         
         // 移动到干扰图位置并应用大小缩放
         ctx.translate(interferencePinX, interferencePinY);
@@ -503,8 +510,6 @@ const init = (withCanvas = false) => {
         ctx.translate(-interferencePinX, -interferencePinY);
         
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4);
-        ctx.globalAlpha = 0.6; // 调整干扰图的透明度为60%
-        ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.restore();
         
@@ -534,12 +539,6 @@ const init = (withCanvas = false) => {
         ctx.restore();
       }
     }
-    
-    // 画整体背景图
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-over";
-    ctx.drawImage(img, x, y, w, h);
-    ctx.restore();
     
     state.loading = false;
     state.isCanSlide = true;
