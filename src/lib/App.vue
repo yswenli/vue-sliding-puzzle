@@ -33,8 +33,8 @@
             {{ state.infoText }}
           </div>
           <div :class="['flash_', { show: state.isSuccess }]" :style="`transform: translateX(${state.isSuccess
-              ? `${canvasWidth + canvasHeight * 0.578}px`
-              : `-${canvasHeight * 0.578}px`
+            ? `${canvasWidth + canvasHeight * 0.578}px`
+            : `-${canvasHeight * 0.578}px`
             }) skew(-30deg, 0);`"></div>
           <img class="reset_" @click="reset(true)" src="./assets/reset.png" />
         </div>
@@ -401,10 +401,6 @@ const init = (withCanvas = false) => {
     ctx.restore();
     ctx.clearRect(0, 0, props.canvasWidth, props.canvasHeight);
 
-    // 画整体背景图
-    ctx.save();
-    ctx.drawImage(img, x, y, w, h);
-    ctx.restore();
 
     // 画缺口
     ctx.save();
@@ -487,6 +483,12 @@ const init = (withCanvas = false) => {
         ctx.restore();
       }
     }
+
+    // 画整体背景图
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-over";
+    ctx.drawImage(img, x, y, w, h);
+    ctx.restore();
 
     state.loading = false;
     state.isCanSlide = true;
