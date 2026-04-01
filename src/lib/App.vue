@@ -1,42 +1,21 @@
 <template>
   <teleport to="body" :disabled="state.isInside">
-    <div
-      :class="['vue-puzzle-vcode', { inside_: state.isInside, show_: show }, className]"
-      :style="bodyStyle"
-      @mousedown="onCloseMouseDown"
-      @mouseup="onCloseMouseUp"
-      @touchstart.passive="onCloseMouseDown"
-      @touchend="onCloseMouseUp"
-    >
+    <div :class="['vue-puzzle-vcode', { inside_: state.isInside, show_: show }, className]" :style="bodyStyle"
+      @mousedown="onCloseMouseDown" @mouseup="onCloseMouseUp" @touchstart.passive="onCloseMouseDown"
+      @touchend="onCloseMouseUp">
       <div class="vue-auth-box_" @mousedown.stop @touchstart.stop>
         <div class="auth-body_" :style="`width:${canvasWidth}px;height: ${canvasHeight}px`">
           <!-- 主图，有缺口 -->
-          <canvas
-            ref="canvas1"
-            class="auth-canvas1_"
-            :width="canvasWidth"
-            :height="canvasHeight"
-          />
+          <canvas ref="canvas1" class="auth-canvas1_" :width="canvasWidth" :height="canvasHeight" />
           <!-- 成功后显示的完整图 -->
-          <canvas
-            ref="canvas3"
-            :class="['auth-canvas3_', { show: state.isSuccess }]"
-            :width="canvasWidth"
-            :height="canvasHeight"
-          />
+          <canvas ref="canvas3" :class="['auth-canvas3_', { show: state.isSuccess }]" :width="canvasWidth"
+            :height="canvasHeight" />
           <!-- 小图 -->
-          <canvas
-            ref="canvas2"
-            class="auth-canvas2_"
-            :width="puzzleBaseSize"
-            :height="canvasHeight"
-            :style="`width:${puzzleBaseSize}px;height:${canvasHeight}px;transform:translateX(${
-              styleWidth -
-              sliderBaseSize -
-              (puzzleBaseSize - sliderBaseSize) *
-                ((styleWidth - sliderBaseSize) / (canvasWidth - sliderBaseSize))
-            }px)`"
-          />
+          <canvas ref="canvas2" class="auth-canvas2_" :width="puzzleBaseSize" :height="canvasHeight" :style="`width:${puzzleBaseSize}px;height:${canvasHeight}px;transform:translateX(${styleWidth -
+            sliderBaseSize -
+            (puzzleBaseSize - sliderBaseSize) *
+            ((styleWidth - sliderBaseSize) / (canvasWidth - sliderBaseSize))
+            }px)`" />
           <div :class="['loading-box_', { hide_: !state.loading }]">
             <div class="loading-gif_">
               <span></span>
@@ -46,39 +25,25 @@
               <span></span>
             </div>
           </div>
-          <div
-            :class="[
-              'info-box_',
-              { show: state.infoBoxShow },
-              { fail: state.infoBoxFail },
-            ]"
-          >
+          <div :class="[
+            'info-box_',
+            { show: state.infoBoxShow },
+            { fail: state.infoBoxFail },
+          ]">
             {{ state.infoText }}
           </div>
-          <div
-            :class="['flash_', { show: state.isSuccess }]"
-            :style="`transform: translateX(${
-              state.isSuccess
-                ? `${canvasWidth + canvasHeight * 0.578}px`
-                : `-${canvasHeight * 0.578}px`
-            }) skew(-30deg, 0);`"
-          ></div>
+          <div :class="['flash_', { show: state.isSuccess }]" :style="`transform: translateX(${state.isSuccess
+              ? `${canvasWidth + canvasHeight * 0.578}px`
+              : `-${canvasHeight * 0.578}px`
+            }) skew(-30deg, 0);`"></div>
           <img class="reset_" @click="reset(true)" src="./assets/reset.png" />
         </div>
         <div class="auth-control_">
           <div class="range-box" :style="`height:${sliderBaseSize}px;width:${canvasWidth}px`">
             <div class="range-text">{{ sliderText }}</div>
-            <div
-              class="range-slider"
-              ref="rangeSlider"
-              :style="`width:${styleWidth}px`"
-            >
-              <div
-                :class="['range-btn', { isDown: state.mouseDown }]"
-                :style="`width:${sliderBaseSize}px`"
-                @mousedown="onRangeMouseDown($event)"
-                @touchstart="onRangeMouseDown($event)"
-              >
+            <div class="range-slider" ref="rangeSlider" :style="`width:${styleWidth}px`">
+              <div :class="['range-btn', { isDown: state.mouseDown }]" :style="`width:${sliderBaseSize}px`"
+                @mousedown="onRangeMouseDown($event)" @touchstart="onRangeMouseDown($event)">
                 <div></div>
                 <div></div>
                 <div></div>
@@ -155,7 +120,7 @@ interface State {
 
 const emit = defineEmits(["success", "fail", "close", "reset"]);
 const props = defineProps({
-  type: {type: String, default: 'modal'}, // 模式 modal,inside
+  type: { type: String, default: 'modal' }, // 模式 modal,inside
   canvasWidth: { type: Number, default: 310 }, // 主canvas的宽
   canvasHeight: { type: Number, default: 160 }, // 主canvas的高
   show: { type: Boolean, default: false }, // 是否出现，由父级控制
@@ -226,8 +191,8 @@ watch(
   }
 );
 
-watch(()=> props.type, (newV) =>{
-  if(newV === 'inside'){
+watch(() => props.type, (newV) => {
+  if (newV === 'inside') {
     state.isInside = true;
     document.body.classList.remove("vue-puzzle-overflow");
   } else {
@@ -241,8 +206,8 @@ const styleWidth = computed(() => {
   return w < sliderBaseSize.value
     ? sliderBaseSize.value
     : w > props.canvasWidth
-    ? props.canvasWidth
-    : w;
+      ? props.canvasWidth
+      : w;
 });
 
 // 图中拼图块的60 * 用户设定的缩放比例计算之后的值 0.2~2
@@ -275,7 +240,7 @@ const onC = () => {
 };
 
 const onCloseMouseDown = () => {
-  if(state.isInside) return;
+  if (state.isInside) return;
   state.closeDown = true;
 };
 
@@ -291,7 +256,7 @@ const onRangeMouseDown = (e: Event) => {
   if (state.isCanSlide) {
     state.mouseDown = true;
     state.startWidth = rangeSlider.value?.clientWidth || 0;
-    state.newX =(e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
+    state.newX = (e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
     state.startX = (e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
     // 记录开始时间
     state.startTime = Date.now();
@@ -302,7 +267,7 @@ const onRangeMouseDown = (e: Event) => {
 const onRangeMouseMove = (e: Event) => {
   if (state.mouseDown) {
     e.preventDefault();
-    state.newX = (e as MouseEvent).clientX !== undefined ?  (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
+    state.newX = (e as MouseEvent).clientX !== undefined ? (e as MouseEvent).clientX : (e as TouchEvent).changedTouches[0].clientX;
   }
 };
 
@@ -366,7 +331,7 @@ const init = (withCanvas = false) => {
     const tag2 = r2 < 0.33 ? -1 : r2 < 0.66 ? 0 : 1;
     const tag3 = r3 < 0.33 ? -1 : r3 < 0.66 ? 0 : 1;
     let tag4 = r4 < 0.6 ? 1 : 0;
-    if(tag1 === tag2 && tag2 === tag3  && tag3 === tag4 && tag4 === 0){
+    if (tag1 === tag2 && tag2 === tag3 && tag3 === tag4 && tag4 === 0) {
       tag4 = 1;
     }
 
@@ -440,25 +405,34 @@ const init = (withCanvas = false) => {
     ctx.save();
     ctx.drawImage(img, x, y, w, h);
     ctx.restore();
-    
+
     // 画缺口
     ctx.save();
     paintBrick(ctx, tag1, tag2, tag3, tag4);
-    ctx.globalCompositeOperation = "destination-out";
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = "#ffffff";
     ctx.fill();
     ctx.restore();
-    
+
     // 画缺口的内阴影
     ctx.save();
     ctx.globalCompositeOperation = "source-atop";
     paintBrick(ctx, tag1, tag2, tag3, tag4);
+    ctx.arc(
+      state.pinX + Math.ceil(puzzleBaseSize.value / 2),
+      state.pinY + Math.ceil(puzzleBaseSize.value / 2),
+      puzzleBaseSize.value * 1.2,
+      0,
+      Math.PI * 2,
+      true
+    );
     ctx.shadowColor = "#000";
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
     ctx.shadowBlur = 16;
     ctx.fill();
     ctx.restore();
-    
+
     // 生成干扰图
     if (props.interferenceDiagramCount > 0) {
       for (let i = 0; i < props.interferenceDiagramCount; i++) {
@@ -471,7 +445,7 @@ const init = (withCanvas = false) => {
           10,
           props.canvasHeight - puzzleBaseSize.value - 10
         );
-        
+
         // 生成随机的tag值
         const r1 = Math.random();
         const r2 = Math.random();
@@ -481,21 +455,30 @@ const init = (withCanvas = false) => {
         const interferenceTag2 = r2 < 0.33 ? -1 : r2 < 0.66 ? 0 : 1;
         const interferenceTag3 = r3 < 0.33 ? -1 : r3 < 0.66 ? 0 : 1;
         let interferenceTag4 = r4 < 0.6 ? 1 : 0;
-        if(interferenceTag1 === interferenceTag2 && interferenceTag2 === interferenceTag3 && interferenceTag3 === interferenceTag4 && interferenceTag4 === 0){
+        if (interferenceTag1 === interferenceTag2 && interferenceTag2 === interferenceTag3 && interferenceTag3 === interferenceTag4 && interferenceTag4 === 0) {
           interferenceTag4 = 1;
         }
-        
+
         // 绘制干扰图的缺口
         ctx.save();
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4, interferencePinX, interferencePinY);
-        ctx.globalCompositeOperation = "destination-out";
+        ctx.globalAlpha = 0.7;
+        ctx.fillStyle = "#ffffff";
         ctx.fill();
         ctx.restore();
-        
+
         // 绘制干扰图的内阴影
         ctx.save();
         ctx.globalCompositeOperation = "source-atop";
         paintBrick(ctx, interferenceTag1, interferenceTag2, interferenceTag3, interferenceTag4, interferencePinX, interferencePinY);
+        ctx.arc(
+          interferencePinX + Math.ceil(puzzleBaseSize.value / 2),
+          interferencePinY + Math.ceil(puzzleBaseSize.value / 2),
+          puzzleBaseSize.value * 1.2,
+          0,
+          Math.PI * 2,
+          true
+        );
         ctx.shadowColor = "#000";
         ctx.shadowOffsetX = 2;
         ctx.shadowOffsetY = 2;
@@ -504,7 +487,7 @@ const init = (withCanvas = false) => {
         ctx.restore();
       }
     }
-    
+
     state.loading = false;
     state.isCanSlide = true;
   };
@@ -561,7 +544,7 @@ const paintBrick = (ctx: CanvasRenderingContext2D, tag1: number, tag2: number, t
   // 使用传入的位置参数，如果没有则使用state中的位置
   const x = pinX !== undefined ? pinX : state.pinX;
   const y = pinY !== undefined ? pinY : state.pinY;
-  
+
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x + moveL, y);
@@ -598,8 +581,8 @@ const paintBrick = (ctx: CanvasRenderingContext2D, tag1: number, tag2: number, t
     y + moveL + moveL,
     moveL / 2
   );
-  ctx.lineTo( x + moveL + moveL + moveL, y + moveL + moveL + moveL); // 右下角
-  ctx.lineTo( x + moveL + moveL, y + moveL + moveL + moveL);
+  ctx.lineTo(x + moveL + moveL + moveL, y + moveL + moveL + moveL); // 右下角
+  ctx.lineTo(x + moveL + moveL, y + moveL + moveL + moveL);
 
   ctx.arcTo(
     x + moveL + moveL,
@@ -699,7 +682,7 @@ const submit = () => {
   state.endTime = Date.now();
   // 计算用时
   const duration = state.endTime - state.startTime;
-  
+
   // 偏差 x = puzzle的起始X - ((用户真滑动的距离) - (puzzle的宽度 - 滑块的宽度) * （用户真滑动的距离/canvas总宽度）+ 3);
   // 最后+ 的是补上slider和滑块宽度不一致造成的缝隙
   // ((用户真滑动的距离) - (puzzle的宽度 - 滑块的宽度) * （用户真滑动的距离/canvas总宽度))
@@ -721,7 +704,7 @@ const submit = () => {
     state.timer1 = setTimeout(() => {
       // 成功的回调
       state.isSubmting = false;
-      emit("success", x, {deviation: x, offsetX: u, pinX: state.pinX - 3, duration});
+      emit("success", x, { deviation: x, offsetX: u, pinX: state.pinX - 3, duration });
     }, 800);
   } else {
     // 失败
@@ -729,7 +712,7 @@ const submit = () => {
     state.infoBoxFail = true;
     state.infoBoxShow = true;
     state.isCanSlide = false;
-    emit("fail", x, {deviation: x, offsetX: u, pinX: state.pinX - 3, duration});
+    emit("fail", x, { deviation: x, offsetX: u, pinX: state.pinX - 3, duration });
     // 800ms后重置
     state.timer1 && clearTimeout(state.timer1);
     state.timer1 = setTimeout(() => {
@@ -777,11 +760,13 @@ defineExpose({ reset });
   opacity: 0;
   pointer-events: none;
   transition: opacity 200ms;
-  &.inside_{
+
+  &.inside_ {
     position: relative;
     background-color: transparent;
     width: 100%;
     height: 100%;
+
     .vue-auth-box_ {
       position: relative;
       top: 0;
@@ -792,11 +777,13 @@ defineExpose({ reset });
       box-shadow: none;
     }
   }
+
   &.show_ {
     opacity: 1;
     pointer-events: auto;
   }
 }
+
 .vue-auth-box_ {
   position: absolute;
   top: 40%;
@@ -807,10 +794,12 @@ defineExpose({ reset });
   user-select: none;
   border-radius: 3px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
   .auth-body_ {
     position: relative;
     overflow: hidden;
     border-radius: 3px;
+
     .loading-box_ {
       position: absolute;
       top: 0;
@@ -824,29 +813,35 @@ defineExpose({ reset });
       display: flex;
       align-items: center;
       justify-content: center;
+
       &.hide_ {
         opacity: 0;
         pointer-events: none;
+
         .loading-gif_ {
           span {
             animation-play-state: paused;
           }
         }
       }
+
       .loading-gif_ {
         flex: none;
         height: 5px;
         line-height: 0;
+
         @keyframes load {
           0% {
             opacity: 1;
             transform: scale(1.3);
           }
+
           100% {
             opacity: 0.2;
             transform: scale(0.3);
           }
         }
+
         span {
           display: inline-block;
           width: 5px;
@@ -855,24 +850,30 @@ defineExpose({ reset });
           border-radius: 50%;
           background-color: #888;
           animation: load 1.04s ease infinite;
+
           &:nth-child(1) {
             margin-left: 0;
           }
+
           &:nth-child(2) {
             animation-delay: 0.13s;
           }
+
           &:nth-child(3) {
             animation-delay: 0.26s;
           }
+
           &:nth-child(4) {
             animation-delay: 0.39s;
           }
+
           &:nth-child(5) {
             animation-delay: 0.52s;
           }
         }
       }
     }
+
     .info-box_ {
       position: absolute;
       bottom: 0;
@@ -889,18 +890,22 @@ defineExpose({ reset });
       transition: all 200ms;
       color: #fff;
       z-index: 10;
+
       &.show {
         opacity: 0.95;
         transform: translateY(0);
       }
+
       &.fail {
         background-color: #ce594b;
       }
     }
-    .auth-canvas1_{
+
+    .auth-canvas1_ {
       width: 100%;
       height: 100%;
     }
+
     .auth-canvas2_ {
       position: absolute;
       top: 0;
@@ -909,6 +914,7 @@ defineExpose({ reset });
       height: 100%;
       z-index: 2;
     }
+
     .auth-canvas3_ {
       position: absolute;
       width: 100%;
@@ -918,10 +924,12 @@ defineExpose({ reset });
       opacity: 0;
       transition: opacity 600ms;
       z-index: 3;
+
       &.show {
         opacity: 1;
       }
     }
+
     .flash_ {
       position: absolute;
       top: 0;
@@ -930,10 +938,12 @@ defineExpose({ reset });
       height: 100%;
       background-color: rgba(255, 255, 255, 0.1);
       z-index: 3;
+
       &.show {
         transition: transform 600ms;
       }
     }
+
     .reset_ {
       position: absolute;
       top: 2px;
@@ -944,11 +954,13 @@ defineExpose({ reset });
       cursor: pointer;
       transition: transform 200ms;
       transform: rotate(0deg);
+
       &:hover {
         transform: rotate(-90deg);
       }
     }
   }
+
   .auth-control_ {
     .range-box {
       position: relative;
@@ -957,6 +969,7 @@ defineExpose({ reset });
       margin-top: 20px;
       border-radius: 3px;
       box-shadow: 0 0 8px rgba(240, 240, 240, 0.6) inset;
+
       .range-text {
         position: absolute;
         top: 50%;
@@ -970,12 +983,14 @@ defineExpose({ reset });
         text-align: center;
         width: 100%;
       }
+
       .range-slider {
         position: absolute;
         height: 100%;
         width: 50px;
         background-color: rgba(106, 160, 255, 0.8);
         border-radius: 3px;
+
         .range-btn {
           position: absolute;
           display: flex;
@@ -988,31 +1003,37 @@ defineExpose({ reset });
           border-radius: 3px;
           box-shadow: 0 0 4px #ccc;
           cursor: pointer;
-          & > div {
+
+          &>div {
             width: 0;
             height: 40%;
 
             transition: all 200ms;
+
             &:nth-child(2) {
               margin: 0 4px;
             }
+
             border: solid 1px #6aa0ff;
           }
+
           &:hover,
           &.isDown {
-            & > div:first-child {
+            &>div:first-child {
               border: solid 4px transparent;
               height: 0;
               border-right-color: #6aa0ff;
             }
-            & > div:nth-child(2) {
+
+            &>div:nth-child(2) {
               border-width: 3px;
               height: 0;
               border-radius: 3px;
               margin: 0 6px;
               border-right-color: #6aa0ff;
             }
-            & > div:nth-child(3) {
+
+            &>div:nth-child(3) {
               border: solid 4px transparent;
               height: 0;
               border-left-color: #6aa0ff;
@@ -1023,6 +1044,7 @@ defineExpose({ reset });
     }
   }
 }
+
 .vue-puzzle-overflow {
   overflow: hidden !important;
 }

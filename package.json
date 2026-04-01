@@ -1,7 +1,15 @@
 {
   "name": "vue-sliding-puzzle",
-  "version": "226.3.31-7",
+  "version": "26.4.1-2",
   "description": "基于 Vue 3 的滑动拼图验证码组件，支持干扰图、时间判定等安全特性",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yswenli/vue-sliding-puzzle.git"
+  },
+  "homepage": "https://github.com/yswenli/vue-sliding-puzzle#readme",
+  "bugs": {
+    "url": "https://github.com/yswenli/vue-sliding-puzzle/issues"
+  },
   "keywords": [
     "vue",
     "vue3",
@@ -20,7 +28,7 @@
     "component",
     "typescript"
   ],
-  "author": "",
+  "author": "yswenli",
   "license": "MIT",
   "files": [
     "dist"
